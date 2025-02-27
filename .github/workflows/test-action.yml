@@ -2,8 +2,8 @@ name: Test Action
 
 on:
   workflow_dispatch:
-  pull_request_review:
-    types: [submitted, edited]
+  pull_request:
+    types: [ready_for_review]
     branches:
       - main
 
