@@ -21,7 +21,7 @@ jobs:
             HELLO > HELLO
 
       - name: Check 
-        if: ${{ env.HELLO != 'WORLD' }}
+        if: ${{ env.HELLO != 'WORLDO' }}
         run: |
           echo "::error title=Error::Secret was not fetched correctly"
           exit 1
