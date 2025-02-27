@@ -2,7 +2,8 @@ name: Test Action
 
 on:
   workflow_dispatch:
-  pull_request:
+  pull_request_review:
+    types: [submitted, edited]
     branches:
       - main
 
@@ -15,7 +16,7 @@ jobs:
       - name: Inject Secrets
         uses: ./
         with:
-          access_token: ${{ secrets.BWS_ACCESS_TOKENA }}
+          access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
           # Fetch a secret with key "HELLO" and value "WORLD"
           secrets: |
             HELLO > HELLO
