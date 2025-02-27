@@ -58,3 +58,4 @@ runs:
       env:  
         BWS_ACCESS_TOKEN: ${{ inputs.access_token }}
         secrets: ${{ inputs.secrets }}
+        
