@@ -9,7 +9,7 @@ To use the action, add a step to your GitHub workflow using the following syntax
 
 ```
 - name: Inject Secrets from Bitwarden Secrets Manager
-  uses: sidxdev/bw-sm-get-by-key-action@v1
+  uses: sidxdev/bw-sm-get-by-key-action@v1.0.0
   with:
     access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
     secrets: |
