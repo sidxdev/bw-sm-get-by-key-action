@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2
@@ -21,7 +21,7 @@ jobs:
             HELLO > HELLO
 
       - name: Check 
-        if: ${{ env.HELLO != 'WORLDO' }}
+        if: ${{ env.HELLO != 'WORLD' }}
         run: |
           echo "::error title=Error::Secret was not fetched correctly"
           exit 1
