@@ -31,12 +31,14 @@ To use the action, add a step to your GitHub workflow using the following syntax
 - `secrets`
 
   One or more secret keys to retrieve and the corresponding GitHub environment variable name to set.
-  Multiple secret keys need to be in new lines.
+  Multiple secret keys need to be in new lines. Just providing the key name will default the environment variable name to the same.
 
   Example
 
-  ```
+  ``` yaml
       secrets: |
           SECRET_KEY > TEST_EXAMPLE
           SECRET_KEY_2 > TEST_EXAMPLE_2
+          # Injected as SECRET_KEY_3
+          SECRET_KEY_3
   ```

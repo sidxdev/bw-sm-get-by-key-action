@@ -11,18 +11,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
 
+      # Fetch a secret with key "HELLO" and value "WORLD"
       - name: Inject Secrets
         uses: ./
         with:
           access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
-          # Fetch a secret with key "HELLO" and value "WORLD"
           secrets: |
-            HELLO > HELLO
+            HELLO
+            HELLO > HELLO_NEW_NAME
+            HELLO>HELLO_NO_SPACES_WORKS_TOO
 
       - name: Check 
-        if: ${{ env.HELLO != 'WORLD' }}
+        if: ${{ (env.HELLO != 'WORLD') || (env.HELLO_NEW_NAME != 'WORLD') || (env.HELLO_NO_SPACES_WORKS_TOO != 'WORLD') }}
         run: |
           echo "::error title=Error::Secret was not fetched correctly"
           exit 1
