@@ -40,8 +40,8 @@ runs:
               IFS='>' read -r key github_env_name <<< "$line"
               key="$(echo -e "${key}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
               github_env_name="$(echo -e "${github_env_name}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-              
-              echo "Setting '$key' to $github_env_name..."
+              github_env_name="${github_env_name:-$key}"
+              echo "Setting '$key' to '$github_env_name'..."
               value=$(echo $BWS_SECRET_LIST | jq -r ". | map(select(.key == \"$key\").value)[0]")
 
               if (( $(grep -c . <<<"$value") > 1 )); then
@@ -58,4 +58,4 @@ runs:
       env:  
         BWS_ACCESS_TOKEN: ${{ inputs.access_token }}
         secrets: ${{ inputs.secrets }}
-        
+      
