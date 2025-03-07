@@ -31,8 +31,8 @@ jobs:
 
       - name: Check 
         if: ${{ (env.HELLO != 'WORLD') || (env.HELLO_NEW_NAME != 'WORLD') || 
-          (env.HELLO_NO_SPACES_WORKS_TOO != 'WORLD') }} ||
-          (env.HELLO_FROM_FILE_WITH_NAME != 'WORLD')
+          (env.HELLO_NO_SPACES_WORKS_TOO != 'WORLD') || 
+          (env.HELLO_FROM_FILE_WITH_NAME != 'WORLD') }}
         run: |
           echo "::error title=Error::Secret was not fetched correctly"
           exit 1
