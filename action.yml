@@ -10,7 +10,8 @@ inputs:
     required: false
     default: ''
   secrets_file:
-    description: File path equivalent of secrets. Both of these parameters are optional and mutually exclusive.
+    description: File path equivalent of secrets. Both of these parameters are optional and at least one needs to be provided.
+      If both are provided then both will be processed.
     required: false
     default: ''
 
