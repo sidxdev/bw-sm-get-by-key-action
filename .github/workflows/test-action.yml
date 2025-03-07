@@ -8,13 +8,17 @@ on:
       - main
 
 jobs:
+  # Fetch a secret with key "HELLO" and value "WORLD" 
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      # Fetch a secret with key "HELLO" and value "WORLD"
+      - name: Prepare test file
+        run: |
+          echo "HELLO > HELLO_FROM_FILE_WITH_NAME" >> .env
+
       - name: Inject Secrets
         uses: ./
         with:
@@ -23,9 +27,12 @@ jobs:
             HELLO
             HELLO > HELLO_NEW_NAME
             HELLO>HELLO_NO_SPACES_WORKS_TOO
+          secrets_file: .env
 
       - name: Check 
-        if: ${{ (env.HELLO != 'WORLD') || (env.HELLO_NEW_NAME != 'WORLD') || (env.HELLO_NO_SPACES_WORKS_TOO != 'WORLD') }}
+        if: ${{ (env.HELLO != 'WORLD') || (env.HELLO_NEW_NAME != 'WORLD') || 
+          (env.HELLO_NO_SPACES_WORKS_TOO != 'WORLD') }} ||
+          (env.HELLO_FROM_FILE_WITH_NAME != 'WORLD')
         run: |
           echo "::error title=Error::Secret was not fetched correctly"
           exit 1

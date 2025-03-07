@@ -7,7 +7,12 @@ inputs:
     required: true
   secrets:
     description: Multi line input of secrets to fetch by key name.
-    required: true
+    required: false
+    default: ''
+  secrets_file:
+    description: File path equivalent of secrets. Both of these parameters are optional and mutually exclusive.
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -17,6 +22,13 @@ runs:
       shell: bash
       run: |
         echo "::error title=Error::Supports Linux Only"
+        exit 1
+
+    - name: Check for inputs
+      if: ${{ inputs.secrets == '' && inputs.secrets_file == '' }}
+      shell: bash
+      run: |
+        echo "::error title=Error::At least one of 'secrets' or 'secrets_file' must be provided."
         exit 1
 
     - name: Install Bitwarden Secrets Manager cli
@@ -31,31 +43,33 @@ runs:
     - name: Fetch & Set Secrets
       shell: bash
       run: |
-          echo 'Fetching secrets from Bitwarden Secrets Manager...'
-          BWS_SECRET_LIST=$(bws secret list)
+        echo 'Fetching secrets from Bitwarden Secrets Manager...'
+        BWS_SECRET_LIST=$(bws secret list)
 
-          echo 'Setting secrets to $GITHUB_ENV...'
-          while IFS= read -r line; do 
-            if [[ ! -z "$line" ]]; then
-              IFS='>' read -r key github_env_name <<< "$line"
-              key="$(echo -e "${key}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-              github_env_name="$(echo -e "${github_env_name}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-              github_env_name="${github_env_name:-$key}"
-              echo "Setting '$key' to '$github_env_name'..."
-              value=$(echo $BWS_SECRET_LIST | jq -r ". | map(select(.key == \"$key\").value)[0]")
+        SECRETS_TO_RESOLVE="$SECRETS$(echo -e '\n')$(cat $SECRETS_FILE)"
 
-              if (( $(grep -c . <<<"$value") > 1 )); then
-                echo "::add-mask::$(echo "$value" | sed ':a;N;$!ba;s/%/%25/g' | sed ':a;N;$!ba;s/\r/%0D/g' | sed ':a;N;$!ba;s/\n/%0A/g')"
-                echo "$github_env_name<<EOF" >> $GITHUB_ENV
-                echo "$value" >> $GITHUB_ENV
-                echo "EOF" >> $GITHUB_ENV
-              else
-                echo "::add-mask::$value"
-                echo "$github_env_name=$value" >> $GITHUB_ENV
-              fi
+        echo 'Setting secrets to $GITHUB_ENV...'
+        while IFS= read -r line; do 
+          if [[ ! -z "$line" ]]; then
+            IFS='>' read -r key github_env_name <<< "$line"
+            key="$(echo -e "${key}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            github_env_name="$(echo -e "${github_env_name}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            github_env_name="${github_env_name:-$key}"
+            echo "Setting '$key' to '$github_env_name'..."
+            value=$(echo $BWS_SECRET_LIST | jq -r ". | map(select(.key == \"$key\").value)[0]")
+
+            if (( $(grep -c . <<<"$value") > 1 )); then
+              echo "::add-mask::$(echo "$value" | sed ':a;N;$!ba;s/%/%25/g' | sed ':a;N;$!ba;s/\r/%0D/g' | sed ':a;N;$!ba;s/\n/%0A/g')"
+              echo "$github_env_name<<EOF" >> $GITHUB_ENV
+              echo "$value" >> $GITHUB_ENV
+              echo "EOF" >> $GITHUB_ENV
+            else
+              echo "::add-mask::$value"
+              echo "$github_env_name=$value" >> $GITHUB_ENV
             fi
-          done <<< $secrets
+          fi
+        done <<< $SECRETS_TO_RESOLVE
       env:  
         BWS_ACCESS_TOKEN: ${{ inputs.access_token }}
-        secrets: ${{ inputs.secrets }}
-      
+        SECRETS: ${{ inputs.secrets }}
+        SECRETS_FILE: ${{ inputs.secrets_file }}
