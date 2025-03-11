@@ -47,7 +47,11 @@ runs:
         echo 'Fetching secrets from Bitwarden Secrets Manager...'
         BWS_SECRET_LIST=$(bws secret list)
 
-        SECRETS_TO_RESOLVE="$SECRETS$(echo -e '\n')$(cat $SECRETS_FILE)"
+        if [ ! -z "$SECRETS_FILE" ] && [ -f $SECRETS_FILE ]; then
+          SECRETS_TO_RESOLVE="$SECRETS$(echo -e '\n')$(cat $SECRETS_FILE)"
+        else
+          SECRETS_TO_RESOLVE="$SECRETS"
+        fi
 
         echo 'Setting secrets to $GITHUB_ENV...'
         while IFS= read -r line; do 
